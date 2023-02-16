@@ -1,0 +1,15 @@
+/test
+/**/.vscode
+/**/.idea
+/**/.gradle
+/**/gradle
+/**/.mvn
+/**/bin
+/**/target
+
+/**/HELP.md
+/**/gradlew.bat
+/**/gradlew
+/**/mvnw
+/**/mvnw.cmd
+
