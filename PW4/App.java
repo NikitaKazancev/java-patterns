@@ -4,7 +4,7 @@ public class App {
 
 	public static void main(String[] args) {
 		MyExecutorService executorService = new MyExecutorService(
-			1
+			2
 		);
 
 		executorService.submit(() -> {

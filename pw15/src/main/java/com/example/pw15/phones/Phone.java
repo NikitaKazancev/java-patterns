@@ -1,13 +1,11 @@
 package com.example.pw15.phones;
 
-import com.example.pw15.manufactures.Manufacture;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.List;
 
 @Entity
 @Table(name = "phones")
@@ -16,8 +14,6 @@ public class Phone {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	private List<Manufacture> manufactures;
 
 	private String name;
 
