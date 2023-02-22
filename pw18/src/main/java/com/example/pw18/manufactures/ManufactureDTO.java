@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,8 @@ public class ManufactureDTO {
         manufactureDTO.setName(manufacture.getName());
         manufactureDTO.setAddress(manufacture.getAddress());
 
+        log.info("Create ManufactureDTO WITHOUT phone: {}", manufactureDTO);
+
         return manufactureDTO;
     }
 
@@ -35,6 +39,18 @@ public class ManufactureDTO {
                 PhoneDTO.withoutManufacture(manufacture.getPhone())
         );
 
+        log.info("Create ManufactureDTO WITH phone: {}", manufactureDTO);
+
         return manufactureDTO;
+    }
+
+    @Override
+    public String toString() {
+        return "ManufactureDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", phone=" + phone +
+                '}';
     }
 }

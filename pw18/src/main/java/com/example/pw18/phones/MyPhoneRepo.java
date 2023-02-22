@@ -9,14 +9,16 @@ import javax.sql.DataSource;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Slf4j
 public class MyPhoneRepo {
-
+	private final String logPrefix = "[MyPhoneRepo] ";
 	private final JdbcTemplate jdbcTemplate;
 	private final RowMapper<Phone> phoneRawMapper;
 	private final RowMapper<Manufacture> manufactureRowMapper;
@@ -24,6 +26,8 @@ public class MyPhoneRepo {
 	private EntityManager entityManager;
 
 	public MyPhoneRepo(DataSource dataSource) {
+		log.info(logPrefix + "Initializing");
+
 		jdbcTemplate = new JdbcTemplate(dataSource);
 		phoneRawMapper =
 			new BeanPropertyRowMapper<>(Phone.class);
@@ -32,6 +36,8 @@ public class MyPhoneRepo {
 	}
 
 	public Phone findById(Long id) {
+		log.info(logPrefix + "Find by id {}", id);
+
 		String sql = "SELECT * FROM phones WHERE id = ?";
 		Phone phone = jdbcTemplate
 			.query(sql, phoneRawMapper, id)
@@ -44,6 +50,8 @@ public class MyPhoneRepo {
 	private List<Manufacture> getManufactureByPhoneId(
 		Long id
 	) {
+		log.info(logPrefix + "Get manufacture by phone id {}", id);
+
 		String sql =
 			"SELECT m.name, m.address, m.id FROM manufactures m " +
 			"WHERE m.phone_id = ?";
@@ -58,6 +66,9 @@ public class MyPhoneRepo {
 	public List<Phone> findByFilters(
 			String name, String creationYear
 	) {
+		log.info(logPrefix + "Find phone by filters: " +
+				"{name: \"{}\", creationYear: \"{}\"}", name, creationYear);
+
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Phone> criteriaQuery = builder.createQuery(Phone.class);
 		Root<Phone> phoneRoot = criteriaQuery.from(Phone.class);

@@ -10,13 +10,15 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Slf4j
 public class MyManufactureRepo {
-
+	private final String logPrefix = "[MyManufactureRepo] ";
 	public JdbcTemplate jdbcTemplate;
 	private final RowMapper<Manufacture> manufactureRowMapper;
 
@@ -24,6 +26,8 @@ public class MyManufactureRepo {
 	private EntityManager entityManager;
 
 	public MyManufactureRepo(DataSource dataSource) {
+		log.info(logPrefix + "Initializing");
+
 		jdbcTemplate = new JdbcTemplate(dataSource);
 		manufactureRowMapper =
 			(rs, rowNum) -> {
@@ -46,6 +50,8 @@ public class MyManufactureRepo {
 	}
 
 	public Manufacture findById(Long id) {
+		log.info(logPrefix + "Find manufacture by id {}", id);
+
 		String sql =
 			"SELECT m.*, p.name AS phone_name, p.creation_year AS phone_creation_year " +
 			"FROM manufactures m " +
@@ -58,6 +64,9 @@ public class MyManufactureRepo {
 	}
 
 	public List<Manufacture> findByFilters(String name, String address) {
+		log.info(logPrefix + "Find manufacture by filters: " +
+				"{name: \"{}\", address: \"{}\"}", name, address);
+
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Manufacture> query = builder.createQuery(Manufacture.class);
 		Root<Manufacture> manufactureRoot = query.from(Manufacture.class);

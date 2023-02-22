@@ -1,6 +1,7 @@
 package com.example.pw18.manufactures;
 
 import com.example.pw18.phones.Phone;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,15 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("manufactures")
 public class ManufactureController {
+	private final String logPrefix = "[ManufactureController] ";
 
-	@Autowired
-	private ManufactureService manufactureService;
+	private final ManufactureService manufactureService;
+
+	public ManufactureController(ManufactureService manufactureService) {
+		log.info(logPrefix + "Initializing");
+		this.manufactureService = manufactureService;
+	}
 
 	@DeleteMapping
 	public void deleteById(@RequestParam Long id) {
+		log.info(logPrefix + "Delete manufacture by id {}", id);
 		manufactureService.deleteById(id);
 	}
 
@@ -30,22 +38,25 @@ public class ManufactureController {
 		@RequestBody Manufacture manufacture,
 		@RequestParam Long phoneId
 	) {
+		log.info(logPrefix + "Save manufacture {} with phone id {}", manufacture, phoneId);
 		manufactureService.save(manufacture, phoneId);
 	}
 
 	@GetMapping
 	public List<ManufactureDTO> findAll() {
-		List<Manufacture> manufactures = manufactureService.findAll();
-		return manufactures.stream().map(ManufactureDTO::withPhone).toList();
+		log.info(logPrefix + "Find all manufactures");
+		return manufactureService.findAll();
 	}
 
 	@GetMapping("/{id}")
 	public Manufacture getById(@PathVariable("id") Long id) {
+		log.info(logPrefix + "Find manufacture by id {}", id);
 		return manufactureService.findById(id);
 	}
 
 	@GetMapping("/{id}/phone")
 	public Phone getPhone(@PathVariable("id") Long id) {
+		log.info(logPrefix + "Find manufacture's phone by id {}", id);
 		return manufactureService.getPhone(id);
 	}
 
@@ -54,6 +65,8 @@ public class ManufactureController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "address", required = false) String address
 	) {
+		log.info(logPrefix + "Find manufacture by filters: " +
+				"{name: \"{}\", address: \"{}\"}", name, address);
 		return manufactureService.findByFilters(name, address);
 	}
 }
