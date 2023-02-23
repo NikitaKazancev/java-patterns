@@ -1,4 +1,4 @@
-package com.example.pw18.logging;
+package com.example.pw18.services.logging;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

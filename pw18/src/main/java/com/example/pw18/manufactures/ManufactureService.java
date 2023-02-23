@@ -39,7 +39,7 @@ public class ManufactureService {
 
 	public List<ManufactureDTO> findAll() {
 		log.info(logPrefix + "Find all manufactures");
-		return manufactureRepo.findAll().stream().map(ManufactureDTO::withPhone).toList();
+		return manufactureRepo.findAll().stream().map(ManufactureDTO::withoutPhone).toList();
 	}
 
 	public void deleteById(Long id) {

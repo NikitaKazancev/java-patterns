@@ -1,4 +1,4 @@
-package com.example.pw18.logging;
+package com.example.pw18.services.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -16,7 +16,8 @@ import java.util.Date;
 public class LogService {
     private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    @Before("execution(* com.example.pw18..*.*(..))")
+    @Before("execution(* com.example.pw18.manufactures.*.*(..)) " +
+            "|| execution(* com.example.pw18.phones.*.*(..))")
     public void logBefore(JoinPoint joinPoint) {
         log.info(
                 "[" + joinPoint.getSignature().getDeclaringTypeName() + "]" +

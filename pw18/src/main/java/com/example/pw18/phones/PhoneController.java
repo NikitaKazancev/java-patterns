@@ -2,7 +2,7 @@ package com.example.pw18.phones;
 
 import java.util.List;
 
-import com.example.pw18.logging.EmailService;
+import com.example.pw18.services.logging.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
