@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/phones")
 @Slf4j
 public class PhoneController {
-	private final String logPrefix = "[PhoneController] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 
 	private final PhoneService phoneService;
 

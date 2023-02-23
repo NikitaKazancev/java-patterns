@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class PhoneService {
-	private final String logPrefix = "[PhoneService] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 	private final MyPhoneRepo myPhoneRepo;
 	private final PhoneRepo phoneRepo;
 

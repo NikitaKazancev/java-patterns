@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 public class MyPhoneRepo {
-	private final String logPrefix = "[MyPhoneRepo] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 	private final JdbcTemplate jdbcTemplate;
 	private final RowMapper<Phone> phoneRawMapper;
 	private final RowMapper<Manufacture> manufactureRowMapper;

@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("manufactures")
 public class ManufactureController {
-	private final String logPrefix = "[ManufactureController] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 
 	private final ManufactureService manufactureService;
 

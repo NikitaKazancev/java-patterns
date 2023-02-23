@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 public class MyManufactureRepo {
-	private final String logPrefix = "[MyManufactureRepo] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 	public JdbcTemplate jdbcTemplate;
 	private final RowMapper<Manufacture> manufactureRowMapper;
 

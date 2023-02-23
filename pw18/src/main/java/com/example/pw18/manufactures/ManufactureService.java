@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ManufactureService {
-	private final String logPrefix = "[ManufactureService] ";
+	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 	private final MyManufactureRepo myManufactureRepo;
 	private final ManufactureRepo manufactureRepo;
 
