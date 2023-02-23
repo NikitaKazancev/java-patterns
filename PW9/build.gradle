@@ -33,7 +33,7 @@ task exec {
       }
 
       delete 'build'
-      
+
       exec {
          commandLine 'docker', 'rm', 'mycontainer'
       }

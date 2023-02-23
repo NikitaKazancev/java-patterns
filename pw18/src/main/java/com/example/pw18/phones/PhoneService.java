@@ -28,9 +28,9 @@ public class PhoneService {
 		phoneRepo.deleteById(id);
 	}
 
-	public List<Phone> findAll() {
+	public List<PhoneDTO> findAll() {
 		log.info(logPrefix + "Find all phones");
-		return phoneRepo.findAll();
+		return phoneRepo.findAll().stream().map(PhoneDTO::withoutManufacture).toList();
 	}
 
 	public Phone findById(Long id) {
