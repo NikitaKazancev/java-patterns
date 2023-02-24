@@ -1,5 +1,6 @@
 package com.example.pw18.configuration;
 
+import com.example.pw18.configuration.auth.SecurityConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.EnableMBeanExport;
@@ -12,6 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableMBeanExport
-@Import({DatabaseConfig.class, EmailConfig.class})
+@Import({DatabaseConfig.class, EmailConfig.class, SecurityConfig.class})
 public class AppConfig {
 }
