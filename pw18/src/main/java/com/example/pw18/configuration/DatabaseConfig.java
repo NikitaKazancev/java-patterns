@@ -21,6 +21,9 @@ public class DatabaseConfig {
     @Value("${spring.datasource.password}")
     private String dataSourcePassword;
 
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClassName;
+
     @Bean
     DataSource dataSource() {
         log.info("[AppConfig] Receive application properties");
@@ -29,9 +32,7 @@ public class DatabaseConfig {
         dataSource.setJdbcUrl(dataSourceUrl);
         dataSource.setUsername(dataSourceUsername);
         dataSource.setPassword(dataSourcePassword);
-        dataSource.setDriverClassName(
-                "com.mysql.cj.jdbc.Driver"
-        );
+        dataSource.setDriverClassName(driverClassName);
         return dataSource;
     }
 
