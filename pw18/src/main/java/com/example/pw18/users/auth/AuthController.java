@@ -1,5 +1,6 @@
 package com.example.pw18.users.auth;
 
+import com.example.pw18.users.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ public class AuthController {
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
     ) {
-        AuthenticationResponse response = service.register(request);
+        AuthenticationResponse response = service.register(request, Role.USER);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

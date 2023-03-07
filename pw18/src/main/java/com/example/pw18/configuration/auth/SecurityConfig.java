@@ -1,5 +1,10 @@
 package com.example.pw18.configuration.auth;
 
+import com.example.pw18.users.Role;
+import com.example.pw18.users.User;
+import com.example.pw18.users.UserService;
+import com.example.pw18.users.auth.AuthenticationService;
+import com.example.pw18.users.auth.RegisterRequest;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +18,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,17 +31,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final DaoAuthenticationProvider authenticationProvider;
-    private final UserDetailsService userDetailsService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthFilter,
-            UserDetailsService userDetailsService
+            UserService userService
     ) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.userDetailsService = userDetailsService;
 
         this.authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setUserDetailsService(userService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
     }
 
@@ -51,6 +53,19 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsService() {
+//        User admin = User.builder()
+//                .role(Role.ADMIN)
+//                .email("admin")
+//                .lastname("admin")
+//                .firstname("admin")
+//                .password(passwordEncoder().encode(("admin")))
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(admin);
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -59,6 +74,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**")
                 .permitAll()
+//                .requestMatchers("/admin")
+//                .hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

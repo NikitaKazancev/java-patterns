@@ -1,12 +1,12 @@
 package com.example.pw18.configuration.auth;
 
+import com.example.pw18.users.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -21,31 +21,31 @@ public class JwtService {
 
     @Value("${secret_key}")
     private String SECRET_KEY;
-    public String extractUsername(String jwt) {
+    public String extractEmail(String jwt) {
         return extractClaim(jwt, Claims::getSubject);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails
+            com.example.pw18.users.User userDetails
     ) {
         return Jwts
             .builder()
             .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
+            .setSubject(userDetails.getEmail())
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
     }
 
-    public boolean isTokenValid(String jwt, UserDetails userDetails) {
-        final String username = extractUsername(jwt);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwt);
+    public boolean isTokenValid(String jwt, User userDetails) {
+        final String email = extractEmail(jwt);
+        return (email.equals(userDetails.getEmail())) && !isTokenExpired(jwt);
     }
 
     private boolean isTokenExpired(String jwt) {
