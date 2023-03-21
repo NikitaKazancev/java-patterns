@@ -9,7 +9,10 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class AuthResult {
-    private String message;
+public class StatusCode {
     private int code;
+
+    public static StatusCode create(int code) {
+        return new StatusCode(code);
+    }
 }
