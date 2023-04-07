@@ -29,7 +29,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
-
     private final CookieRepo cookieRepo;
 
     public AuthResponseDTO register(RegisterRequestDTO requestData, HttpServletRequest request) {
@@ -46,10 +45,12 @@ public class AuthService {
 
         userRepo.save(user);
 
-        for (Cookie cookie : request.getCookies()) {
-            cookieRepo.save(CookieEntity.builder()
-                    .value(cookie.getValue())
-                    .build());
+        if (request != null) {
+            for (Cookie cookie : request.getCookies()) {
+                cookieRepo.save(CookieEntity.builder()
+                        .value(cookie.getValue())
+                        .build());
+            }
         }
 
         return AuthResponseDTO.builder()
@@ -69,10 +70,12 @@ public class AuthService {
         User user = userRepo.findByEmail(authData.getEmail())
                 .orElseThrow();
 
-        for (Cookie cookie : request.getCookies()) {
-            cookieRepo.save(CookieEntity.builder()
-                    .value(cookie.getValue())
-                    .build());
+        if (request != null) {
+            for (Cookie cookie : request.getCookies()) {
+                cookieRepo.save(CookieEntity.builder()
+                        .value(cookie.getValue())
+                        .build());
+            }
         }
 
         return AuthResponseDTO.builder()
