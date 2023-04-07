@@ -11,11 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Slf4j
 public class HomeController {
 	@GetMapping
-	public ModelAndView render() {
-		log.info("Render hello.html");
-
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("hello.html");
-		return modelAndView;
+	public String render() {
+		return "Home";
 	}
 }

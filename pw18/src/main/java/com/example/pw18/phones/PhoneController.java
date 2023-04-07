@@ -2,7 +2,6 @@ package com.example.pw18.phones;
 
 import java.util.List;
 
-import com.example.pw18.services.logging.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +20,10 @@ public class PhoneController {
 	private final String logPrefix = "[" + this.getClass().getName() + "] ";
 
 	private final PhoneService phoneService;
-	private final EmailService emailService;
 
-	public PhoneController(PhoneService phoneService, EmailService emailService) {
+	public PhoneController(PhoneService phoneService) {
 		log.info(logPrefix + "Initializing");
 		this.phoneService = phoneService;
-		this.emailService = emailService;
 	}
 
 	@PostMapping
@@ -47,7 +44,6 @@ public class PhoneController {
 	@Transactional(readOnly = true)
 	public List<PhoneDTO> findAll() {
 		log.info(logPrefix + "Find all phones");
-		emailService.sendEmailAsync(logPrefix, "Find all phones");
 		return phoneService.findAll();
 	}
 

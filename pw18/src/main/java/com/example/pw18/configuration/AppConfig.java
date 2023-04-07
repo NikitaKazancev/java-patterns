@@ -12,6 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 @EnableMBeanExport
-@Import({DatabaseConfig.class, EmailConfig.class, SecurityConfig.class})
+@Import({DatabaseConfig.class, SecurityConfig.class})
 public class AppConfig {
 }
