@@ -5,15 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.function.Function;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class TestsApplication {
-    public static void test(Function<Integer, String> f) {
-
-    }
 
     public static void main(String[] args) {
-        test((a) -> a.toString() + "12");
-        SpringApplication.run(TestsApplication.class, args);
+        Test.main(args);
     }
 
 }
