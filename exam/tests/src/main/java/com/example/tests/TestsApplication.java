@@ -1,15 +1,15 @@
 package com.example.tests;
 
+import com.example.tests.db.Config;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-import java.util.function.Function;
+import java.util.concurrent.*;
 
-//@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
 public class TestsApplication {
-
-    public static void main(String[] args) {
-        Test.main(args);
+    public static void main(String[] args)  {
+        SpringApplication.run(TestsApplication.class);
     }
-
 }

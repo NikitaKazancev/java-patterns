@@ -1104,8 +1104,6 @@ public class Main {
                System.out.println("Thread: " + i);
                Thread.sleep(1000);
             }
-
-
          } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Лучше всегда вызывать, что дальше по цепочке можно было понять, что поток прерван
             System.out.println("Thread interrupted");
@@ -1291,24 +1289,110 @@ Thread consumer = new Thread(() -> {
    }
 });
 
-producer.start();
 consumer.start();
+producer.start();
 ```
+
+`ConcurrentLinkedQueue`, `ConcurrentHashMap` и `CopyOnWriteArrayList` позволяют обращаться к разным элементам в разных потоках одновременно
+
+Пример работы:
+
+```java
+public class ConcurrentLinkedQueueExample {
+
+   public static void main(String[] args) {
+      ConcurrentLinkedQueue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
+
+      taskQueue.add(() -> System.out.println("Task 1 executed"));
+      taskQueue.add(() -> System.out.println("Task 2 executed"));
+      taskQueue.add(() -> System.out.println("Task 3 executed"));
+
+      Thread worker = new Thread(() -> {
+         while (!taskQueue.isEmpty()) {
+            Runnable task = taskQueue.poll();
+            task.run();
+         }
+      });
+
+      worker.start();
+   }
+}
+```
+
+Методы:
+
+Map:
+
+1. `put(key, value)`
+2. `get(key)`
+3. `remove(key)`
+4. `size()`
+
+List:
+
+1. `add(e)`
+2. `add(index, e)`
+3. `get(index)`
+4. `size()`
+
+Queue:
+
+1. add(e): with Exception
+2. offer(e): without Exception
+3. poll(): return and remove head element
+4. peek(): return head element
+
+BlockingQueue:
+
+1. put(e): waiting for space
+2. take(): waiting for element
+3. remainingCapacity(): Returns the capacity of the queue.
 
 ---
 
 ### 39. Потокобезопасные коллекции пакета java.util.concurrent:
 
-```java
-
-```
+См **38**
 
 ---
 
 ### 40. Реализация асинхронного выполнения в Джава
 
-```java
+Суть в том, что во время ожидания ввода/вывода освобождать поток.
 
+```java
+Вместо:
+String text = readFromFile();
+processText(text);
+
+Пишем:
+readFromFile(text -> {
+   processText(text);
+});
+```
+
+Пример с CompletableFuture
+
+```java
+CompletableFuture<String> completableFuture = CompletableFuture.supplyAsync(() -> {
+   try {
+         Thread.sleep(2000);
+   } catch (InterruptedException e) {
+         e.printStackTrace();
+   }
+   return "Hello, world!";
+});
+
+CompletableFuture<Void> callback = completableFuture.thenAccept(result -> {
+   System.out.println("Result1: " + result);
+});
+
+System.out.println("Waiting for result...");
+String result = completableFuture.get(); // Ожидание результата
+System.out.println("Result2: " + result);
+
+System.out.println("Waiting for callback...");
+callback.get();
 ```
 
 ---
@@ -1324,7 +1408,24 @@ consumer.start();
 ### 42. Использование статических методов для создания экземпляра объекта вместо конструкторов
 
 ```java
+public class Rectangle {
 
+   private final int width;
+   private final int height;
+
+   private Rectangle(int width, int height) {
+      this.width = width;
+      this.height = height;
+   }
+
+   public static Rectangle createSquare(int size) {
+      return new Rectangle(size, size);
+   }
+
+   public static Rectangle create(int width, int height) {
+      return new Rectangle(width, height);
+   }
+}
 ```
 
 ---
@@ -1339,16 +1440,61 @@ consumer.start();
 
 ### 44. Понятие dependency injection (внедрение зависимости). Преимущества использования внедрения зависимостей при написании программ на языке Джава. Преимущества этого подхода перед паттерном Одиночка
 
-```java
+1. Гибкость. Класс может полагаться не на реализацию, а на абстракции и интерфейсы
+2. Тестируемость. Внедряя зависимости, во время тестирования какого-то модуля нет необходимости по цепочке подключать все его зависимости, можно заменить их заглушками
+3. Модульность. Отдельные классы или модули можно легко использовать в других
 
+Преимущества перед Singleton:
+
+1. Сохраняется возможность создавать несколько объектов
+2. Приложение тестируется проще, поскольку заменять зависимости заглушками гораздо проще, чем реальные объекты
+3. DI позволяет слабо связывать модули, Singleton, напротив, создаёт тесную связь
+
+Singleton же стоит, например, использовать, если у класса есть собственное состояние, которое нужно получать у разных объектов (потому получается, что это будет один и тот же объект)
+
+```java
+public class SpellChecker {
+   private final Lexicon dictionary;
+
+   public SpellChecker(Lexicon dictionary) {
+      this.dictionary = dictionary;
+   }
+
+   //
+}
 ```
 
 ---
 
-### 45. Преимущество использования try-с-ресурсами по сравнению с использованием try-finally. Интерфейс интерфейса AutoCloseable
+### 45. Преимущество использования try-с-ресурсами по сравнению с использованием try-finally. Интерфейс AutoCloseable
+
+AutoCloseable - интерфейс с методом close(), который вызывается после окончания блока try
 
 ```java
+try (BufferedReader reader = new BufferedReader(new FileReader("file.txt"))) {
+   String line = reader.readLine();
+} catch (IOException e) {}
 
+////
+
+try (
+   Connection connection = DriverManager.getConnection(url, username, password);
+   Statement statement = connection.createStatement()
+) {
+   ResultSet resultSet = statement.executeQuery("SELECT * FROM table");
+} catch (SQLException e) {}
+
+////
+
+try (
+   FileInputStream input = new FileInputStream("input.txt");
+   FileOutputStream output = new FileOutputStream("output.txt")
+) {
+   int data;
+   while ((data = input.read()) != -1) {
+      output.write(data);
+   }
+} catch (IOException e) {}
 ```
 
 ---
@@ -1356,125 +1502,616 @@ consumer.start();
 ### 46. Паттерн Декоратор (Decorator) Преимущества его использовании (например композиция по сравнению с наследованием)
 
 ```java
+interface Logger {
+   void log(String message);
+}
 
+// Наш класс
+class ConsoleLogger implements Logger {
+   @Override
+   public void log(String message) {
+      System.out.println("Logging: " + message);
+   }
+}
+
+// Абстрактный декоратор
+abstract class LoggerDecorator implements Logger {
+   private Logger decoratedLogger;
+
+   public LoggerDecorator(Logger decoratedLogger) {
+      this.decoratedLogger = decoratedLogger;
+   }
+
+   @Override
+   public void log(String message) {
+      decoratedLogger.log(message);
+   }
+}
+
+// Декоратор с выводом времени
+class TimestampLoggerDecorator extends LoggerDecorator {
+   public TimestampLoggerDecorator(Logger decoratedLogger) {
+      super(decoratedLogger);
+   }
+
+   @Override
+   public void log(String message) {
+      String timestamp = "[" + java.time.LocalDateTime.now() + "] ";
+      super.log(timestamp + message);
+   }
+}
+
+// Декоратор с дополнительным выводом
+class LogLevelLoggerDecorator extends LoggerDecorator {
+   private String logLevel;
+
+   public LogLevelLoggerDecorator(Logger decoratedLogger, String logLevel) {
+      super(decoratedLogger);
+      this.logLevel = logLevel;
+   }
+
+   @Override
+   public void log(String message) {
+      String logMessage = "[" + logLevel + "] " + message;
+      super.log(logMessage);
+   }
+}
+
+Logger logger = new ConsoleLogger();
+logger = new TimestampLoggerDecorator(logger);
+logger = new LogLevelLoggerDecorator(logger, "INFO");
+logger.log("This is a log message");
+```
+
+Преимущества Декоратора перед Наследованием:
+
+1. Можно легко добавлять несколько декораторов
+2. Меньше зависимостей. При наследовании создаётся простой новый класс, во время декорирования мы лишь создаём класс-обёртку для первичного
+3. С помощью интерфейсов можно легко абстрагировать разные декораторы и первичные классы, что добавляет гибкости коду
+
+Декораторы вместо зависимости используют композицию:
+
+```java
+// Наследование
+class Transport {
+   //
+}
+class Car extends Transport {
+   //
+}
+
+// Композиция
+class Transport {
+   //
+}
+class Car {
+   private transport;
+
+   public Car(Transport transport) {
+      this.transport = transport;
+   }
+
+   //
+}
 ```
 
 ---
 
 ### 47. Преимущества использования списков перед массивами
 
-```java
-
-```
+1. Динамический размер. При создании списка память не выделяется сразу, а только после добавления; кроме того разработчику не нужно беспокоиться об изменении размера в будущем, всё будет сделано автоматически.
+2. Функциональность. У списков просто больше функций.
+3. Интеграция с Collection Framework. Списки включены в Java Collections Framework, что обеспечивает унифицированный и согласованный способ работы с коллекциями в Java. Их можно использовать взаимозаменяемо с другими типами коллекций, такими как наборы или очереди, и использовать общие интерфейсы и алгоритмы, предоставляемые языком.
 
 ---
 
 ### 48. Основные системы сборки Gradle и Maven. Использование Gradle и основная терминология. Управление зависимостями в Gradle
 
-```java
+**Отличия:**
 
+Maven:
+
+1. POM на основе XML
+2. Есть много предопределенных настроек, проект легче запускается
+
+Gradle:
+
+1. Groovy, Kotlin или XML
+2. Синтаксис более лаконичный -> более читабельный
+3. Можно управлять задачами и зависимостями, которые нужны конкретным задачам
+
+**О Gradle:**
+
+-  Сценарии сборки для Gradle хранятся в build.gradle
+-  settings.gradle - информация о подпроектах (или просто rootProject.[name, ...])
+-  Задачи могут выполняться отдельно, могут и зависеть друг от друга
+-  Плагины Gradle могут определять новые задачи, вводить соглашения и т.п.; это как декораторы для классов
+-  Зависимости указываются в dependencies, их можно скачивать из Maven Central
+-  Часто используемые блоки: plugins, repositories, dependencies, sourceSets, task
+-  Gradle Wrapper - скрипт, который гарантирует, что все разработчики используют одну и ту же версию Gradle (gradlew, gradlew.bat, gradle-wrapper.properties)
+-  CLI: [gradle] build - для сборки, test - для тестов, run - для выполнения приложения, tasks - для вывода всех задач и т.п.
+
+**Про зависимости:**
+
+Виды:
+
+-  implementation: нужны для компиляции и запуска приложения
+-  testImplementation: для запуска тестов
+-  compileOnly: для компиляции
+-  runtimeOnly: нужны во время выполнения
+
+Возможности:
+
+-  Gradle может извлекать зависимости из удаленных репозиториев и из локальных, также он кеширует скачанные зависимости.
+-  Если зависимости нужны другие, он их автоматически устанавливает
+-  Плагины позволяют частично управлять зависимостями: java позволяет скачивать конкретный зависимости по умолчанию
+-  Можно исключать установку дополнительных зависимостей с помощью exclude()
+-  Задача dependencyUpdates позволяет проверить доступные обновления зависимостей
+
+Пример:
+
+```gradle
+plugins {
+   id("application")
+}
+
+group = "ru.mirea.example"
+version = "0.1"
+description = "Пример приложения"
+
+java {
+   sourceCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile) {
+   options.encoding = "UTF-8"
+}
+
+repositories {
+   mavenCentral()
+}
+
+dependencies {
+   implementation("org.apache.commons:commons-lang3:3.12.0")
+}
+
+application {
+   mainClass.set("ru.mirea.example.Example2")
+}
+
+tasks.register(“hello”) {
+   dependsOn(“beforeHello”)
+   doLast {
+      println(“Hello task”)
+   }
+}
+
+tasks.register(“beforeHello”) {
+   doLast {
+      println(“Before hello”)
+   }
+}
+
+tasks.register(“copyConfig”, type: Copy) { // Предопределенный тип задачи
+   from(“config”)
+   into(“distr”)
+   exclude(“README.md”)
+}
+
+subprojects {
+   apply(plugin: "java")
+
+   group = "ru.mirea.example"
+   version = "0.1"
+
+   java {
+      sourceCompatibility = JavaVersion.VERSION_11
+   }
+
+   tasks.withType(JavaCompile) {
+      options.encoding = "UTF-8"
+   }
+
+   repositories {
+      mavenCentral()
+   }
+}
 ```
 
----
+Дополнительно:
+
+-  Скрипт gradle wrapper инициализирует его
+-  Фазы: инициализация (setting.gradle), конфигурация (на основе build.gradle), выполнение (запуск задач)
 
 ### 49. Анатомия jar. Сканирование пакетов
 
-```java
+-  Jar это zip архив специального вида!
+-  Внутри jar находятся байт код программы, ресурсы, а также сохранена переменная classpath для данной программы.
+-  Classpath это переменная в которой указаны пути до всех классов программы (в том числе и Main)
 
-```
+Сканирование пакетов:
+
+Одной из ключевых особенностей JVM является динамическая загрузка классов. Достигается это благодаря сущности загрузчика классов.
+
+Идея состоит в том что мы можем двигаться по классам переменной classpath и загружать их при помощи classloader. Загружая классы, являющиеся подттипом данного, что реализует библиотека reflections.
+
+Структура .jar файла:
+
+-  Манифест. Файл JAR начинается с манифеста (META-INF/MANIFEST.MF), который хранит справочные данны: версию, основной класс и т.п.
+-  Структура каталогов. После манифеста хранится информация о файлах проекта
+-  Байт-код. После хранятся скомпилированные Java классы с расширением .class
+-  Ресурсы. Могут быть также файлы ресурсов: изображения, xml и т.п.
 
 ---
 
 ### 50. Реализация REST API с помощью Spring Framework
 
 ```java
+@RestController
+@RequestMapping("/users")
+public class UserController {
+   private final UserService userService;
 
+   @Autowired
+   public UserController(UserService userService) {
+      this.userService = userService;
+   }
+
+   @GetMapping
+   public List<User> getAllUsers() {
+      return userService.getAllUsers();
+   }
+
+   @GetMapping("/{id}")
+   public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
+      User user = userService.getUserById(id);
+      if (user != null) {
+         return ResponseEntity.ok(user);
+      } else {
+         return ResponseEntity.notFound().build();
+      }
+   }
+}
+
+@Service
+public class UserService {
+   private final UserRepository userRepository;
+
+   @Autowired
+   public UserService(UserRepository userRepository) {
+      this.userRepository = userRepository;
+   }
+
+   public List<User> getAllUsers() {
+      return userRepository.findAll();
+   }
+
+   public User getUserById(Long id) {
+      Optional<User> userOptional = userRepository.findById(id);
+      return userOptional.orElse(null);
+   }
+}
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {}
 ```
+
+Пути:
+
+-  GET /users
+-  GET /users/{id}
+-  GET /users/{id}?tag={tagValue}
+-  GET /users/{id}/someData
+-  POST /users
+-  PUT /users/{id}
+-  PUT /users/{id}/someData
+-  DELETE /users/{id}
 
 ---
 
 ### 51. Понятие Инверсии управления
 
-```java
+По сути, речь идёт о том, чтобы передать ответственность за создание и управление зависимостями фреймворку
 
+```java
+@RestController // Spring понимает, что данный класс является контроллером и его можно использовать в DI
+@RequestMapping("/users")
+public class UserController {
+   private final UserService userService;
+
+   @Autowired // Spring сам понимает, что сюда нужно подключить зависимость
+   public UserController(UserService userService) {
+      this.userService = userService;
+   }
+}
 ```
+
+**Более умными словами:**
+
+Инверсия управления (IoC) — это принцип проектирования программного обеспечения, который относится к обращению традиционного потока управления между компонентами в системе. В типичном потоке управления компонент явно создает и управляет жизненным циклом своих зависимых компонентов. Однако в IoC ответственность за создание зависимостей и управление ими переносится на отдельный контейнер или фреймворк.
+
+В IoC поток управления инвертируется, поскольку управление созданием, инициализацией и управлением жизненным циклом объектов передается контейнеру, также известному как контейнер IoC или контейнер внедрения зависимостей (DI). Контейнер отвечает за разрешение зависимостей и их внедрение в компоненты, которым они требуются.
 
 ---
 
 ### 52. Spring Boot и его использование
 
-```java
+Spring Boot создан на основе Spring. Особенности:
 
-```
+1. Простая установка и конфигурация. Установка в пару кликов, а начальная конфигурация предлагается рабочей из коробки
+2. Встроенные веб-серверы (Tomcat, Jetty, Undertow). Благодаря этому можно запускать всё приложение с помощью только одного .jar файла
+3. Работа через аннотации. Spring Boot предоставляет огромное количество аннотаций, которые позволяют сосредоточиться только на написании бизнес-логики.
+4. Большой выбор зависимостей. Предлагаются проверенные пакеты для решения популярных задач, такие как Data JPA, Security, Lombok и т.п.
+5. Работа со Spring Boot может вестись напрямую из командной строки
+
+Примеры, когда удобно использовать Spring:
+
+-  Веб-приложения
+-  Веб-приложения с двунаправленной связью (благодаря удобному Spring WebSockets)
+-  Обработка данных
+-  Создание микросервиса
+-  В целом интеграция с внешними системами
 
 ---
 
 ### 53. Работа с базами данных в джава приложениях. Встроенные СУБД для Джава приложений.
 
-```java
+Встроенные СУБД:
 
+-  H2
+-  Apache Derby
+
+Клиент-серверные СУБД:
+
+-  PostgreSQL
+-  Oracle
+-  MySQL
+-  Microsoft SQL Server
+
+Виды подключений к БД:
+
+-  обычный JDBC
+-  Spring JDBC
+-  Spring Data JPA
+
+Пример с обычным JDBC:
+
+```java
+@Bean
+public Connection connection() throws SQLException {
+   try {
+      Class.forName("com.mysql.cj.jdbc.Driver");
+      return DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "pass");
+   } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+   }
+}
+
+@Repository
+public class UserDao {
+   private final Connection connection;
+
+   public UserDao(Connection connection) {
+      this.connection = connection;
+   }
+
+   public List<User> findAll() throws SQLException {
+      List<User> users = new ArrayList<>();
+      String sql = "SELECT * FROM users";
+
+      try (
+         Statement statement = connection.createStatement();
+         ResultSet resultSet = statement.executeQuery(sql)
+      ) {
+
+         while (resultSet.next()) {
+            User user = new User();
+            user.setId(resultSet.getLong("id"));
+            user.setName(resultSet.getString("name"));
+            user.setEmail(resultSet.getString("email"));
+
+            users.add(user);
+         }
+      }
+
+      return users;
+   }
+}
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+   private final UserDao userDao;
+
+   @Autowired
+   public UserController(UserDao userDao) {
+      this.userDao = userDao;
+   }
+
+   @GetMapping
+   public List<User> getAllUsers() throws SQLException {
+      return userDao.findAll();
+   }
+}
 ```
+
+Пример со Spring JDBC:
+
+```java
+@Bean
+DataSource dataSource() {
+   HikariDataSource dataSource = new HikariDataSource();
+   dataSource.setJdbcUrl(dataSourceUrl);
+   dataSource.setUsername(dataSourceUsername);
+   dataSource.setPassword(dataSourcePassword);
+   dataSource.setDriverClassName(driverClassName);
+
+   return dataSource;
+}
+
+@Repository
+public class UserRepo {
+
+	private final JdbcTemplate jdbcTemplate;
+
+	public UserRepo(DataSource dataSource) {
+		jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	public List<User> findAll() {
+		String sql = "SELECT * FROM users";
+		return jdbcTemplate.query(
+			sql,
+			new BeanPropertyRowMapper<>(User.class)
+		);
+	}
+}
+```
+
+Spring Data Jpa - обычный вариант доступа к БД
 
 ---
 
-### 54. Реляционные СУБД для работы с джава приложениями. Пакет Пакет java.sql и его классы
+### 54. Реляционные СУБД для работы с джава приложениями. Пакет java.sql и его классы
 
-```java
+См **53**
 
-```
+Классы java.sql:
+
+-  `DriverManager`: нужен для установки соединения с базой данных
+-  `Connection`: является объект соединения, позволяет создавать объект Statement
+-  `Statement`: позволяет выполнять SQL запросы
+-  `ResultSet`: результат запроса к БД, next() сдвигает курсор, методы get...() получают данные из столбцов
+-  `PreparedStatement`: можно писать SQL с параметрами
+-  `ResultSetMetaData`: в нём есть методы для работы со столбцами ResultSet
+-  `SQLException`: исключение при попытке подключения к БД
 
 ---
 
 ### 55. Роль интерфейса JDBC для работы с джава приложениями
 
-```java
+Проще говоря, JDBC позволяет делать в Java-приложении следующие вещи: предоставление общего API, установление соединения с базой данных, выполнение sql-запросов, обработка результатов и управление транзакциями
 
+ПО JDBC API - См **54**
+
+Про Spring JDBC:
+
+`HikariDataSource` позволяет подключиться к БД. А `JdbcTemplate` отправлять запросы к БД
+
+Существует также класс NamedParameterJdbcTemplate, который позволяет писать запросы с параметрами:
+
+```java
+@Autowired
+private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+public void executeQuery() {
+   String sql = "SELECT * FROM users WHERE age > :age";
+   Map<String, Object> params = new HashMap<>();
+   params.put("age", 18);
+   List<User> users = namedParameterJdbcTemplate.query(sql, params, new BeanPropertyRowMapper<>(User.class));
+}
 ```
 
 ---
 
 ### 56. Основные компоненты JDBC API
 
-```java
-
-```
+См 54
 
 ---
 
 ### 57. JDBC URL и его использование
 
-```java
+JDBC URL - путь до БД; составляющие:
 
-```
+1. Протокол: например, jdbc:mysql:// или jdbc:postgresql://
+2. Хост и порт: например, для локальной БД - "localhost" и 3306
+3. Имя БД
+4. Доп. параметры, например как: пользователь или пароль
+
+Пример - jdbc:mysql://localhost:3306/mydatabase?user=myuser&password=mypassword
 
 ---
 
 ### 58. Работа JDBC драйвера
 
-```java
+JDBC-драйвер – библиотека для выполнения SQL-запросов для конкретной БД.
+Он действует как мост между приложением Java и базой данных, позволяя приложению отправлять операторы SQL в базу данных, извлекать результаты и управлять соединениями с базой данных.
 
-```
+JDBC-драйвер подключается через конфигурацию runtimeOnly. Это значит, что его классы недоступны на этапе компиляции.
+
+Во время подключения `DriverManager` перебирает все зарегистрированные драйверы и вызывает у них метод acceptsURL. Если он возвращает true, то вызывается метод connect. Потому нам необязательно указывать драйвер при подключении.
 
 ---
 
 ### 59. В чем заключается роль DI в Spring. Использования ServiceLoader
 
-```java
+DI - подход для простого подключения классов
 
+Service Loader - реализация такого похода
+
+Вариант от Spring - @Service, @Component, @Autowired и т.п.
+
+Вариант от Google:
+
+```java
+import com.google.auto.service.AutoService;
+
+@AutoService(SimpleService.class)
+public class SimpleServiceProvider implements SimpleService {
+   @Override
+   public void doSomething() {
+      System.out.println("Doing something in SimpleServiceProvider");
+   }
+}
+
+public class ServiceLoaderExample {
+   public static void main(String[] args) {
+      ServiceLoader<SimpleService> serviceLoader = ServiceLoader.load(SimpleService.class);
+
+      for (SimpleService service : serviceLoader) {
+         service.doSomething();
+      }
+   }
+}
 ```
 
 ---
 
 ### 60. Интерфейс Connection. Пулы соединений
 
-```java
+Пул соединений с базой данных это набор заранее открытых соединений с базой данных используемый для предоставления соединения в тот момент, когда оно требуется.
 
+-  соединение нет необходимости открывать заново при каждом запросе, его можно переиспользовать
+-  пулы гарантируют, что БД не будет перегружена, поскольку часто есть ограничения на количество одновременно отправленных запросов
+-  пул обычно включает в себя управление соединением: проверку на работоспособность, получение информации о его работе
+
+```java
+# DataSource configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/mydatabase
+spring.datasource.username=dbuser
+spring.datasource.password=dbpassword
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# HikariCP specific configuration
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.maximum-pool-size=10
 ```
 
 ---
 
 ### 61. Принципы SOLID и их использование на Джава
 
-```java
+-  Single responsibility: каждая сущность имеет свою зону ответственности и не более
+-  Open-closed: расширять можно, изменять старый код не желательно
+-  Liskov substitution: наследуемые классы должны дополнять, а не замещать поведение базового класса
+-  Interface segregation: при изменении одного дочернего класса на другой логика работы тех же методов должна быть интуитивно понятна, т.е. интерфейсы нужно разделять
+-  Dependency inversion: модули высокого уровня не должны зависеть от модулей низкого уровня; используя стратегию проблема решается сама собой
 
-```
+Примеры:
+
+S - вместо огромного репозитория используем разные для каждой сущности \
+O - вместо передачи параметров в какой-то метод и проверки через условия, лучше создать новый класс \
+L - например, toString(): пример не очень хороший, но понятный; такой метод лучше не изменять у обычных сущностей, у которых он и так хорошо отрабатывает \
+I - не должно быть такого, что есть какой-то интерфейс IService с кучей методов, часть из которых не используется в тех или иных реализациях; методы нужно разделять в соответствии со своими обязанностями \
+D - если у нас есть класс логирования в консоль и класс логирования на почту, мы должны не напрямую создавать объекты таких классов, а использовать переходный класс, в который мы передаём объект нам нужного класса; это позволяет отделить логику работы с классом от внешнего компонента
